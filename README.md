@@ -1,10 +1,20 @@
 # OPDS Client for Onyx Boox (and other old Android devices)
 
+**Language: [English](#) | [Русский](README.ru.md)**
+
 A lightweight client to browse and download books from **OPDS catalogs**.
 Built specifically for **Android 2.3 (API 9, Gingerbread)** and E-Ink devices
 (tested on **Onyx Boox Newton i63**), but works on any Android 2.3+.
 
 APK size — about **60 KB**.
+
+---
+
+## Screenshots
+
+Catalog view                 | Search results            | Settings
+-----------------------------|---------------------------|-------------------------
+![Catalog](screenshots/catalog.png) | ![Search](screenshots/search.png) | ![Settings](screenshots/settings.png)
 
 ---
 
@@ -20,6 +30,11 @@ APK size — about **60 KB**.
 
 > Note: the app works over **HTTP**. Old devices (Android 2.3) do not support
 > modern TLS 1.2 for HTTPS, so the OPDS catalog must be reachable via `http://…`.
+
+> **Root access is NOT required.** The app is a normal Android application and
+> works without root. (Root may be only relevant if some very restricted
+> device firmware requires it for sideloading apps, which is not specific to
+> this app.)
 
 ---
 
