@@ -1,0 +1,25 @@
+# Сборка (генерируется)
+gen/
+classes/
+build/
+dexout*/
+out/
+
+# Подпись APK — НЕ выкладывать
+*.jks
+*.keystore
+*.key
+
+# Локальная конфигурация
+local.properties
+
+# Рабочие/временные файлы
+*.tmp
+*.bak
+~$*
+
+# Все промежуточные APK, кроме финального
+*.unsigned.apk
+*-aligned.apk
+*-aligned*.apk
+*-unsigned.apk

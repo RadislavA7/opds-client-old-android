@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">OPDS Client</string>
+    <string name="title_catalog">Каталог</string>
+    <string name="title_settings">Настройки каталогов</string>
+    <string name="title_books">Скачанные книги</string>
+
+    <string name="btn_add_catalog">Добавить каталог</string>
+    <string name="btn_open">Открыть</string>
+    <string name="btn_edit">Изменить</string>
+    <string name="btn_delete">Удалить</string>
+    <string name="btn_save">Сохранить</string>
+    <string name="btn_cancel">Отмена</string>
+    <string name="btn_books">Книги</string>
+    <string name="btn_settings">Настройки</string>
+
+    <string name="hint_name">Название</string>
+    <string name="hint_url">Адрес OPDS (http://…)</string>
+    <string name="hint_login">Логин (если нужен)</string>
+    <string name="hint_password">Пароль (если нужен)</string>
+
+    <string name="empty_catalogs">Каталоги не настроены. Добавьте первый.</string>
+    <string name="empty_feed">Каталог пуст.</string>
+    <string name="loading">Загрузка…</string>
+    <string name="error_network">Ошибка сети</string>
+    <string name="error_parse">Не удалось разобрать каталог</string>
+    <string name="error_empty_name">Введите название</string>
+    <string name="error_empty_url">Введите адрес</string>
+    <string name="download_started">Скачивание запущено</string>
+    <string name="download_failed">Не удалось скачать книгу</string>
+    <string name="confirm_delete">Удалить каталог?</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+
+    <string name="nav_up">Наверх</string>
+    <string name="download_dir">Скачать в папку:</string>
+    <string name="search_hint">Поиск по каталогу…</string>
+    <string name="cover_desc">Обложка</string>
+    <string name="title_app_settings">Настройки</string>
+    <string name="hint_download_dir">Папка для книг (напр. /sdcard/Books)</string>
+    <string name="label_download_dir">Папка скачивания</string>
+    <string name="saved">Сохранено</string>
+    <string name="error_dir">Укажите путь к папке</string>
+    <string name="title_folder_picker">Выбор папки</string>
+    <string name="btn_choose">Выбрать эту папку</string>
+    <string name="btn_nav_up">Вверх</string>
+    <string name="browse">Обзор…</string>
+    <string name="no_subdirs">Вложенных папок нет</string>
+    <string name="author_icon_desc">Автор</string>
+    <string name="desc_icon_desc">Описание</string>
+    <string name="search_btn">Найти</string>
+    <string name="no_search">Поиск для этого каталога недоступен</string>
+</resources>

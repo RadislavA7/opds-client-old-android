@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <TextView
+        android:id="@+id/label_dir"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/label_download_dir"
+        android:textSize="14sp"
+        android:textColor="#333333"
+        android:padding="4dp" />
+
+    <EditText
+        android:id="@+id/input_dir"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:hint="@string/hint_download_dir"
+        android:inputType="textUri"
+        android:padding="6dp"
+        android:background="@android:drawable/editbox_background_normal"
+        android:textSize="14sp"
+        android:textColor="#000000" />
+
+    <Button
+        android:id="@+id/btn_browse"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="@string/browse" />
+
+    <Button
+        android:id="@+id/btn_save"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/btn_save" />
+</LinearLayout>
