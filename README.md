@@ -12,9 +12,7 @@ APK size — about **60 KB**.
 
 ## Screenshots
 
-Catalog view                 | Search results            | Settings
------------------------------|---------------------------|-------------------------
-![Catalog](screenshots/catalog.png) | ![Search](screenshots/search.png) | ![Settings](screenshots/settings.png)
+*No screenshots available yet.*
 
 ---
 
