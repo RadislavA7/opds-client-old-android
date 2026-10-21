@@ -38,6 +38,7 @@ public class CatalogActivity extends Activity implements AdapterView.OnItemClick
     private ProgressBar progress;
     private EditText searchInput;
     private Button searchBtn;
+    private Button refreshBtn;
     private EntryAdapter adapter;
 
     private String catalogName;
@@ -90,8 +91,10 @@ public class CatalogActivity extends Activity implements AdapterView.OnItemClick
         progress = (ProgressBar) findViewById(R.id.progress);
         searchInput = (EditText) findViewById(R.id.search_input);
         searchBtn = (Button) findViewById(R.id.search_btn);
+        refreshBtn = (Button) findViewById(R.id.refresh_btn);
         searchInput.setOnEditorActionListener(this);
         searchBtn.setOnClickListener(this);
+        refreshBtn.setOnClickListener(this);
         searchInput.setEnabled(false);
         searchBtn.setEnabled(false);
 
@@ -115,6 +118,19 @@ public class CatalogActivity extends Activity implements AdapterView.OnItemClick
         } else {
             load(currentUrl);
         }
+        // debug/testing hook: start a book download immediately (adb am start --es download <url>)
+        String autoDownload = getIntent().getStringExtra("download");
+        if (autoDownload != null && autoDownload.length() > 0) {
+            final String dl = autoDownload;
+            final String fn = getIntent().getStringExtra("name") != null
+                    ? getIntent().getStringExtra("name") + ".epub"
+                    : "book.epub";
+            handler.postDelayed(new Runnable() {
+                public void run() {
+                    download(dl, fn);
+                }
+            }, 2000);
+        }
     }
 
     private void load(final String url) {
@@ -135,6 +151,20 @@ public class CatalogActivity extends Activity implements AdapterView.OnItemClick
                     } else {
                         if (info.searchTemplate != null) {
                             searchTemplate = info.searchTemplate;
+                            if (!searchTemplate.startsWith("http://") && !searchTemplate.startsWith("https://")) {
+                                if (searchTemplate.startsWith("/")) {
+                                    int hostEnd = url.indexOf("/", url.indexOf("://") + 3);
+                                    if (hostEnd >= 0) {
+                                        searchTemplate = url.substring(0, hostEnd) + searchTemplate;
+                                    }
+                                } else {
+                                    String baseDir = url;
+                                    int q = baseDir.indexOf('?');
+                                    if (q >= 0) baseDir = baseDir.substring(0, q);
+                                    int slash = baseDir.lastIndexOf('/');
+                                    searchTemplate = (slash >= 0 ? baseDir.substring(0, slash + 1) : baseDir) + searchTemplate;
+                                }
+                            }
                             handler.obtainMessage(4).sendToTarget();
                         }
                         resolveRelative(url, info.entries);
@@ -157,7 +187,10 @@ public class CatalogActivity extends Activity implements AdapterView.OnItemClick
         int slash = baseDir.lastIndexOf('/');
         String dir = slash >= 0 ? baseDir.substring(0, slash + 1) : baseDir;
         for (OpdsParser.Entry e : es) {
+            String baseForEntry = computeBase(base, e.link, dir);
             if (e.link.startsWith("http://") || e.link.startsWith("https://")) {
+                // keep absolute; still resolve format links against the absolute entry link
+                resolveFormats(baseForEntry, e);
                 continue;
             }
             if (e.link.startsWith("/")) {
@@ -168,7 +201,47 @@ public class CatalogActivity extends Activity implements AdapterView.OnItemClick
             } else {
                 e.link = dir + e.link;
             }
+            resolveFormats(e.link, e);
+            if (e.formats != null) {
+                for (OpdsParser.Format f : e.formats) {
+                    android.util.Log.e("OPDSClient", "resolved format '" + e.title + "': " + f.link);
+                }
+            }
         }
+    }
+
+    /** Resolves relative links of book formats against the entry's (now absolute) link. */
+    private void resolveFormats(String entryLink, OpdsParser.Entry e) {
+        if (e.formats == null) return;
+        String eb = entryLink;
+        if (!eb.startsWith("http://") && !eb.startsWith("https://")) {
+            return;
+        }
+        int hq = eb.indexOf('?');
+        if (hq >= 0) eb = eb.substring(0, hq);
+        int lslash = eb.lastIndexOf('/');
+        String eDir = lslash >= 0 ? eb.substring(0, lslash + 1) : eb + "/";
+        for (OpdsParser.Format f : e.formats) {
+            if (f.link == null || f.link.startsWith("http://") || f.link.startsWith("https://")) {
+                continue;
+            }
+            if (f.link.startsWith("/")) {
+                int hostEnd = eb.indexOf("/", eb.indexOf("://") + 3);
+                if (hostEnd >= 0) {
+                    f.link = eb.substring(0, hostEnd) + f.link;
+                }
+            } else {
+                f.link = eDir + f.link;
+            }
+        }
+    }
+
+    /** Chooses the base for resolving: the entry's own absolute URL if present, else catalog base. */
+    private String computeBase(String catalogBase, String entryLink, String dir) {
+        if (entryLink != null && (entryLink.startsWith("http://") || entryLink.startsWith("https://"))) {
+            return entryLink;
+        }
+        return catalogBase;
     }
 
     private void render() {
@@ -299,6 +372,10 @@ public class CatalogActivity extends Activity implements AdapterView.OnItemClick
         int id = v.getId();
         if (id == R.id.search_btn) {
             doSearch();
+        } else if (id == R.id.refresh_btn) {
+            if (currentUrl != null && currentUrl.length() > 0) {
+                load(currentUrl);
+            }
         }
     }
 

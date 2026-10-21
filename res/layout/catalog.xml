@@ -41,6 +41,15 @@
             android:text="@string/search_btn"
             android:minHeight="64dp"
             android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/refresh_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="8dp"
+            android:text="@string/refresh_btn"
+            android:minHeight="64dp"
+            android:textSize="18sp" />
     </LinearLayout>
 
     <TextView

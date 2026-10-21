@@ -50,4 +50,6 @@
     <string name="desc_icon_desc">Описание</string>
     <string name="search_btn">Найти</string>
     <string name="no_search">Поиск для этого каталога недоступен</string>
+
+    <string name="refresh_btn">Обновить</string>
 </resources>

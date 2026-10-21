@@ -21,7 +21,7 @@ public class OpdsParser {
         public Format(String link, String type) {
             this.link = link;
             this.type = type;
-            this.fileName = strippedFileName(link);
+            this.fileName = strippedFileName(link, type);
         }
     }
 
@@ -131,13 +131,22 @@ public class OpdsParser {
             if (href == null || href.length() == 0) {
                 continue;
             }
-            if ("subsection".equals(rel) || "related".equals(rel)) {
+            boolean isFeedType = type != null
+                    && (type.contains("atom") || type.contains("opds")
+                        || type.contains("xml") || type.contains("rss"));
+            boolean isSubsection = "subsection".equals(rel) || "related".equals(rel);
+            if (isSubsection) {
                 if (navHref == null) navHref = href;
                 continue;
             }
-            if (rel == null || rel.length() == 0 || "acquisition".equals(rel) || "http://opds-spec.org/acquisition".equals(rel)) {
-                if ("feed".equals(type)) {
-                    // Direct acquisition with feed type = child catalog embedded
+            if (rel == null || rel.length() == 0
+                    || rel.startsWith("http://opds-spec.org/acquisition")
+                    || "acquisition".equals(rel)) {
+                if ("feed".equals(type) || (type != null
+                        && (type.contains("atom") || type.contains("opds")
+                            || type.contains("rss")))) {
+                    // Link to an OPDS/Atom feed without explicit navigation rel:
+                    // it is a subcatalog (Flibusta subcatalogs have no rel at all).
                     if (navHref == null) navHref = href;
                 } else {
                     // A downloadable book file (possibly several formats)
@@ -152,6 +161,29 @@ public class OpdsParser {
                 }
             }
         }
+        // Navigation fallback: only if no book file was found.
+        // Flibusta subcatalogs use rel=sort/new etc. with atom type; books may
+        // also carry an atom link to the author page, so book wins over nav.
+        if (e.link == null && navHref == null) {
+            for (int i = 0; i < links.getLength(); i++) {
+                Element l = (Element) links.item(i);
+                String rel = l.getAttribute("rel");
+                String href = l.getAttribute("href");
+                String type = l.getAttribute("type");
+                if (href == null || href.length() == 0) continue;
+                if ("search".equals(rel)) continue; // OpenSearch descriptor is not navigation
+                boolean isFeedType = type != null
+                        && (type.contains("atom") || type.contains("opds")
+                            || type.contains("xml") || type.contains("rss"));
+                if (isFeedType && (rel == null || rel.length() == 0
+                        || !rel.startsWith("http://opds-spec.org/acquisition")
+                        && !"acquisition".equals(rel))) {
+                    navHref = href;
+                    break;
+                }
+            }
+        }
+        android.util.Log.e("OPDSClient", "entry formats '" + e.title + "': " + e.formats.size());
 
         if (e.link == null && navHref != null) {
             e.link = navHref;
@@ -159,6 +191,7 @@ public class OpdsParser {
         } else if (e.link == null) {
             return null; // no usable link
         }
+        android.util.Log.e("OPDSClient", "entry classified: '"+e.title+"' isFeed="+e.isFeed+" isBook="+e.isBook+" link="+e.link);
         return e;
     }
 
@@ -195,14 +228,28 @@ public class OpdsParser {
         return null;
     }
 
-    private static String strippedFileName(String url) {
+    private static String strippedFileName(String url, String type) {
         // Remove query
         int q = url.indexOf('?');
         if (q >= 0) url = url.substring(0, q);
         int slash = url.lastIndexOf('/');
         String name = slash >= 0 ? url.substring(slash + 1) : url;
         if (name.length() == 0) {
-            return "book";
+            name = "book";
+        }
+        // If the final token is just a format keyword without extension (Flibusta /b/123/epub),
+        // build a human name from the id part + extension.
+        String lower = name.toLowerCase();
+        boolean isFormatToken = lower.equals("fb2") || lower.equals("epub") || lower.equals("mobi")
+                || lower.equals("txt") || lower.equals("html") || lower.equals("rtf") || lower.equals("pdf")
+                || lower.equals("azw") || lower.equals("azw3") || lower.equals("djvu");
+        if (isFormatToken) {
+            // fetch the numeric id from the path (e.g. /b/423236/epub -> 423236)
+            String path = slash >= 0 ? url.substring(0, slash) : "";
+            int ls = path.lastIndexOf('/');
+            String id = ls >= 0 ? path.substring(ls + 1) : "book";
+            if (id.length() == 0 || !id.matches("[0-9]+")) id = "book";
+            name = id + "." + lower;
         }
         // strip HTML from name
         return name.replaceAll("[^A-Za-z0-9._\\-]", "_");

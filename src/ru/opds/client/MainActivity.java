@@ -33,6 +33,25 @@ public class MainActivity extends Activity implements View.OnClickListener,
 
         store = new CatalogStore(this);
         catalogs = new ArrayList<Catalog>(store.load());
+        if (catalogs.size() == 0) {
+            // seed with a well-known public OPDS catalog on first launch;
+            // users add their own catalogs (incl. private ones) via Settings
+            catalogs.add(new Catalog("Flibusta", "http://flibusta.is/opds", "", ""));
+            store.save(catalogs);
+        } else {
+            // ensure Flibusta is present alongside the user's catalogs
+            boolean hasFlibusta = false;
+            for (Catalog c : catalogs) {
+                if (c.url != null && c.url.contains("flibusta")) {
+                    hasFlibusta = true;
+                    break;
+                }
+            }
+            if (!hasFlibusta) {
+                catalogs.add(new Catalog("Flibusta", "http://flibusta.is/opds", "", ""));
+                store.save(catalogs);
+            }
+        }
 
         list = (ListView) findViewById(R.id.list);
         empty = (TextView) findViewById(R.id.empty);
@@ -50,6 +69,25 @@ public class MainActivity extends Activity implements View.OnClickListener,
         settings.setOnClickListener(this);
 
         refresh();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // restore Flibusta whenever the screen is shown again,
+        // in case it was removed meanwhile (user delete or settings reset)
+        boolean hasFlibusta = false;
+        for (Catalog c : catalogs) {
+            if (c.url != null && c.url.contains("flibusta")) {
+                hasFlibusta = true;
+                break;
+            }
+        }
+        if (!hasFlibusta) {
+            catalogs.add(new Catalog("Flibusta", "http://flibusta.is/opds", "", ""));
+            store.save(catalogs);
+            refresh();
+        }
     }
 
     private void refresh() {

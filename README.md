@@ -43,6 +43,8 @@ APK size — about **60 KB**.
 3. Open the APK with a file manager and confirm installation.
    (Or install via adb: `adb install opds-client.apk`.)
 4. Launch the app and add your first catalog.
+   (On first launch a popular public catalog — **Flibusta** — is pre-added;
+   it is restored automatically if removed, so the list is never empty.)
 
 ---
 
@@ -54,6 +56,8 @@ APK size — about **60 KB**.
 - **HTTP Basic auth** support (login and password) for protected catalogs.
 - **Search within a catalog** via the OPDS OpenSearch standard
   (input field + "Find" button).
+- **"Refresh" button** reloads the current catalog view (useful on flaky
+  mobile connections); network requests retry automatically up to 3 times.
 - Navigate into sub-catalogs directly from the list.
 
 ### Downloading books

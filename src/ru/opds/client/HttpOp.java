@@ -29,19 +29,28 @@ public class HttpOp {
     }
 
     public Result open(String url) throws IOException {
-        try {
-            return openInternal(url);
-        } catch (IOException e) {
-            android.util.Log.e("OPDSClient", "open failed: " + url, e);
-            throw e;
+        int attempts = 3;
+        IOException last = null;
+        for (int i = 0; i < attempts; i++) {
+            try {
+                return openInternal(url);
+            } catch (IOException e) {
+                last = e;
+                if (i < attempts - 1) {
+                    android.util.Log.e("OPDSClient", "open retry " + (i + 1) + "/" + attempts + ": " + url);
+                    try { Thread.sleep(1500); } catch (InterruptedException ie) { break; }
+                }
+            }
         }
+        android.util.Log.e("OPDSClient", "open failed: " + url, last);
+        throw last;
     }
 
     private Result openInternal(String url) throws IOException {
         HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
         c.setInstanceFollowRedirects(true);
-        c.setConnectTimeout(15000);
-        c.setReadTimeout(30000);
+        c.setConnectTimeout(20000);
+        c.setReadTimeout(60000);
         c.setRequestProperty("User-Agent", "OPDSClient/1.0");
         c.setRequestProperty("Accept-Encoding", "gzip");
         if (login != null && login.length() > 0) {
